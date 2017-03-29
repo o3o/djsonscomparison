@@ -1,0 +1,7 @@
+name "djsoncomparison"
+description "D json serializer comparison"
+authors "Orfeo Da Vià"
+copyright "Copyright © 2017, dao"
+license "Boost"
+dependency "asdf" version="~>0.1.3"
+dependency "vibe-d:data" version="~>0.7.30"
