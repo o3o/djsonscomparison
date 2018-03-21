@@ -3,5 +3,18 @@ description "D json serializer comparison"
 authors "Orfeo Da Vià"
 copyright "Copyright © 2017, dao"
 license "Boost"
+
 dependency "asdf" version="~>0.1.3"
 dependency "vibe-d:data" version="~>0.7.30"
+
+
+configuration "unittest" {
+   targetName "test-runner"
+   targetType "executable"
+   mainSourceFile "src/ut.d"
+   /*sourcePaths "tests"*/
+   /*excludedSourceFiles "src/app.d"*/
+   preBuildCommands "dub run unit-threaded -c gen_ut_main -- -f src/ut.d"
+   dependency "unit-threaded" version="~>0.7.41"
+}
+

@@ -6,3 +6,4 @@ __dummy.html
 __test__*__
 djsoncomparison
 dub.selections.json
+src/ut.d
