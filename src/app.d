@@ -33,7 +33,7 @@ unittest {
 unittest {
    import vibe.data.json;
    auto s = Simple("vibe", 42, true);
-   string expected = `{"name":"vibe","level":42,"done":true}`;
+   enum expected = `{"name":"vibe","level":42,"done":true}`;
    assert(s.serializeToJsonString() == expected);
 }
 
@@ -41,7 +41,7 @@ unittest {
 unittest {
    import vibe.data.json;
    auto s = Simple("vibe", 32, true);
-   string data = `{"name":"vibe","level":32,"done":true}`;
+   enum data = `{"name":"vibe","level":32,"done":true}`;
    assert(data.deserializeJson!Simple() == s);
 }
 
@@ -55,7 +55,7 @@ import vibe.data.json;
 
 
    auto s = Options( 32, "vibe");
-   string data = `{"connection_string":"vibe","number_of_di":32}`;
+   enum data = `{"connection_string":"vibe","number_of_di":32}`;
    data.deserializeJson!Options.shouldEqual(s);
 }
 
@@ -65,10 +65,14 @@ unittest {
    import asdf;
    struct Options {
       @serializationKeys("number_of_di") int diSize;
-      @serializationKeys("connection_string") string connectionString;
+      @serializationKeys("connection_string", "cs") string connectionString;
    }
 
    auto s = Options( 32, "vibe");
-   string data = `{"connection_string":"vibe","number_of_di":32}`;
-   data.deserialize!Options.shouldEqual(s);
+   enum DATA = `{"connection_string":"vibe","number_of_di":32}`;
+   DATA.deserialize!Options.shouldEqual(s);
+
+   enum SHORT_DATA = `{"cs":"vibe","number_of_di":32}`;
+   SHORT_DATA.deserialize!Options.shouldEqual(s);
+
 }
