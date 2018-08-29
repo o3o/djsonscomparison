@@ -74,5 +74,161 @@ unittest {
 
    enum SHORT_DATA = `{"cs":"vibe","number_of_di":32}`;
    SHORT_DATA.deserialize!Options.shouldEqual(s);
-
 }
+import std.variant;
+alias Parm = Algebraic!(bool, int, long, double, string);
+
+struct Copy {
+   import asdf;
+	string type;
+	string key;
+	@serializationIgnoreIn Parm[string] let;
+
+
+	void finalizeDeserialization(Asdf json) {
+      auto l = json["let"];
+      foreach (k; l.byKeyValue) {
+         const(char)[] key = k[0];
+         let[key] = k[1].get("a");
+         //switch (k[1].kind) {
+            //case Asdf.Kind.string:
+               //let[key] = l[key].get!string;
+               //break;
+            //case Asdf.Kind.false_:
+               //let[key] = false;
+               //break;
+            //case Asdf.Kind.true_:
+               //let[key] = true;
+               //break;
+            //case Asdf.Kind.number_:
+               //let[key] = l[key].get!double;
+               //break;
+            //default:
+               //assert(false);
+         //}
+      }
+	}
+}
+
+/+
+@("final")
+unittest {
+   import asdf;
+   string json = `{
+   "type": "copy",
+   "key": "cp",
+   "description": "copy data",
+   "let": {
+      "var_a": "var_x",
+      "var_b": true,
+      "var_c": 1964,
+      "var_d": 12.5
+   }
+}`;
+
+      Copy c =  json.deserialize!Copy();
+      import std.stdio;
+      writeln(c);
+
+      Copy d = Copy("t");
+      d.let["a"] = 20;
+      writeln(d);
+      writeln(d.serializeToJson);
+}
++/
+/+
+struct ParmProxy {
+   import asdf;
+	Parm parms;
+	alias parms this;
+
+	static ParmProxy deserialize(Asdf data) {
+/+      Parm[string] p;
+      foreach (k; data.byKeyValue) {
+         const(char)[] key = k[0];
+         p[key] = k[1].get("a");
+      }
++/
+		return ParmProxy(data.get("a"));
+	}
+
+	void serialize(S)(ref S serializer) {
+      import std.conv: to;
+		serializer.putValue(parm.to!string);
+	}
+}
+
+
+struct Copy2 {
+   import asdf;
+	string type;
+	string key;
+   @serializedAs!ParmProxy Parm[string] let;
+}
+@("final2")
+unittest {
+   import asdf;
+   string json = `{
+   "type": "copy",
+   "key": "cp",
+   "description": "copy data",
+   "let": {
+      "var_a": "var_x",
+      "var_b": true,
+      "var_c": 1964,
+      "var_d": 12.5
+   }
+}`;
+
+      Copy2 c =  json.deserialize!Copy2();
+      import std.stdio;
+      writeln(c);
+}
+
+struct PointProxy {
+   import asdf;
+	Point points;
+	alias points this;
+
+	static PointProxy deserialize(Asdf data) {
+		return PointProxy(data.get("x"), data.get("y"));
+	}
+
+	void serialize(S)(ref S serializer) {
+      /*
+       *import std.conv: to;
+		 *serializer.putValue(parm.to!string);
+       */
+	}
+}
+struct Copy3 {
+   import asdf;
+	string type;
+	string key;
+   @serializedAs!PointProxy Point[] points;
+}
+struct Point {
+   int x;
+   int y;
+}
+
+@("final3")
+unittest {
+   import asdf;
+   string json = `{
+   "type": "copy",
+   "key": "cp",
+   "description": "copy data",
+   "points": [
+      {"x":10, "y": 20 },
+      {"x":11, "y": 21 }
+   ]
+}`;
+
+      Copy3 c =  json.deserialize!Copy3();
+      import std.stdio;
+      writeln(c);
+}
+
++/
+
